@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const books = require('./books-model'); 
+const books = require('./books-model');
+
+
+const { checkBookPayload, validateBookId } = require('./books-middleware');
 
 
 router.get('/', (req, res) => {
@@ -8,35 +11,27 @@ router.get('/', (req, res) => {
 });
 
 
-router.post('/', (req, res) => {
-    console.log("Books:", books); 
-    
+router.post('/', checkBookPayload, (req, res) => {
     const newBook = req.body;
     newBook.id = books.length + 1;
-    books.push(newBook); 
+    books.push(newBook);
     res.status(201).json(newBook);
 });
 
-router.put('/:id', (req, res) => {
-    const book = books.find(b => b.id === parseInt(req.params.id));
-    if (!book) {
-        return res.status(404).json({ message: "Book not found" });
-    }
-   
+
+router.put('/:id', validateBookId, checkBookPayload, (req, res) => {
+    const book = req.book; 
     book.name = req.body.name;
     book.writer = req.body.writer;
     res.json(book);
 });
 
 
-router.delete('/:id', (req, res) => {
-    const index = books.findIndex(b => b.id === parseInt(req.params.id));
-    if (index > -1) {
-        books.splice(index, 1);
-        res.status(200).json({ message: "Book deleted" });
-    } else {
-        res.status(404).json({ message: "Book not found" });
-    }
+router.delete('/:id', validateBookId, (req, res) => {
+    const book = req.book; 
+    const index = books.indexOf(book); 
+    books.splice(index, 1);
+    res.json({ message: "Book deleted" });
 });
 
 module.exports = router;
