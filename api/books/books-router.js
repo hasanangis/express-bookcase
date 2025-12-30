@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
 
 
 router.post('/', (req, res) => {
-    console.log("Books Değişkeni Şudur:", books); 
+    console.log("Books:", books); 
     
     const newBook = req.body;
     newBook.id = books.length + 1;
